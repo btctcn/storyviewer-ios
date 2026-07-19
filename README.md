@@ -9,6 +9,15 @@ sharing the same underlying model and video cache. A 1:1 iOS counterpart of
 The library has no dependency on any specific backend or DI framework: "story viewed" and "link
 clicked" events are reported back through plain closures, not through direct API calls.
 
+## Screenshots
+
+| Feed | Viewer | Video |
+|---|---|---|
+| ![Feed](screenshots/feed.png) | ![Viewer](screenshots/viewer.png) | ![Video](screenshots/viewer_video.png) |
+
+See the [`Demo`](Demo) app for a runnable, self-contained example (bundled placeholder
+images/video, no network access required).
+
 ## Modules
 
 | Product | What it is |
