@@ -1,0 +1,61 @@
+name: StoryViewerDemo
+options:
+  bundleIdPrefix: dev.btctcn.storyviewer.demo
+configs:
+  Debug: debug
+  Release: release
+targets:
+  StoryViewerDemo:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: Sources
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        PRODUCT_BUNDLE_IDENTIFIER: dev.btctcn.storyviewer.demo
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGNING_ALLOWED: NO
+    dependencies:
+      - package: storyviewer-ios
+        product: StoryViewerCore
+      - package: storyviewer-ios
+        product: StoryViewerUIKit
+      - package: storyviewer-ios
+        product: StoryViewerSwiftUI
+  StoryViewerDemoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: UITests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: dev.btctcn.storyviewer.demo.uitests
+        SWIFT_VERSION: "5.0"
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGNING_ALLOWED: NO
+        TEST_TARGET_NAME: StoryViewerDemo
+packages:
+  storyviewer-ios:
+    path: ..
+schemes:
+  StoryViewerDemo:
+    build:
+      targets:
+        StoryViewerDemo: all
+        StoryViewerDemoUITests: [test]
+    test:
+      targets:
+        - StoryViewerDemoUITests
+    run:
+      config: Debug
