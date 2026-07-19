@@ -21,6 +21,30 @@ final class StoryViewerDemoUITests: XCTestCase {
         XCTAssertTrue(label.label.contains(substring), "Expected \"\(label.label)\" to contain \"\(substring)\"")
     }
 
+    // MARK: - README screenshots
+
+    /// Not a correctness test — drives the demo to capture the three README screenshots (feed,
+    /// image viewer, video viewer) as XCTAttachments, matching the Android library's
+    /// screenshots/{feed,viewer,viewer_video}.png.
+    func testCaptureReadmeScreenshots() throws {
+        let app = XCUIApplication()
+        app.launch()
+        attach(app, name: "screenshot-feed")
+
+        app.buttons["storyCircle0"].tap()
+        sleep(1)
+        attach(app, name: "screenshot-viewer")
+
+        // Named-element lookups inside the animating SwiftUI viewer are slow (see the note in
+        // testSwiftUIWatchButtonReportsClickedLink) — tap the close button's known position.
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.126)).tap()
+        sleep(1)
+
+        app.buttons["storyCircle2"].tap()
+        sleep(2)
+        attach(app, name: "screenshot-viewer-video")
+    }
+
     // MARK: - SwiftUI flavor
 
     func testSwiftUIWatchButtonReportsClickedLink() throws {
@@ -37,7 +61,7 @@ final class StoryViewerDemoUITests: XCTestCase {
         // the watch button's known on-screen position directly instead of querying for it first.
         let watchButtonPosition = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9))
         watchButtonPosition.tap()
-        assertLastResult(app, contains: "apple.com")
+        assertLastResult(app, contains: "storyviewer-ios")
         attach(app, name: "swiftui-02-after-watch-tap")
     }
 
@@ -79,7 +103,7 @@ final class StoryViewerDemoUITests: XCTestCase {
         attach(app, name: "uikit-03-paused")
 
         app.buttons["storyViewer.watchButton"].tap()
-        assertLastResult(app, contains: "apple.com")
+        assertLastResult(app, contains: "storyviewer-ios")
         attach(app, name: "uikit-04-after-watch-tap")
     }
 
