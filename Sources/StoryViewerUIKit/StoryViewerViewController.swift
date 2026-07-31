@@ -82,10 +82,46 @@ open class StoryViewerViewController: UIViewController {
         setUpLayout()
         bindModel()
         showCurrentStory()
+        observeAppLifecycle()
     }
 
     deinit {
         imageLoadTask?.cancel()
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    // MARK: - App lifecycle (screen lock / background)
+
+    /// Suspends the timer and video playback when the app resigns active (screen lock, app
+    /// switcher, incoming call, etc.) and resumes them on return — but only if this suspension is
+    /// what paused it: a story the user had already paused manually stays paused after returning.
+    private var isPausedBySystem = false
+
+    private func observeAppLifecycle() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleWillResignActive),
+            name: UIApplication.willResignActiveNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+    }
+
+    @objc private func handleWillResignActive() {
+        guard !model.isPaused else { return }
+        isPausedBySystem = true
+        model.pause()
+    }
+
+    @objc private func handleDidBecomeActive() {
+        guard isPausedBySystem else { return }
+        isPausedBySystem = false
+        model.resume()
     }
 
     // MARK: - Layout
