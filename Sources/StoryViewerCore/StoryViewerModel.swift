@@ -120,12 +120,30 @@ public final class StoryViewerModel: ObservableObject {
     // MARK: - Playback controls
 
     public func togglePause() {
-        isPaused.toggle()
         if isPaused {
-            pauseRun()
+            resume()
         } else {
-            startRun()
+            pause()
         }
+    }
+
+    /// Idempotent explicit pause, distinct from `togglePause()`. Intended for callers that need to
+    /// suspend playback for a reason unrelated to the user's own pause/play button (e.g. the host
+    /// app backgrounding or the screen locking) without flipping an already-paused state back to
+    /// playing.
+    public func pause() {
+        guard !isPaused else { return }
+        isPaused = true
+        pauseRun()
+    }
+
+    /// Idempotent explicit resume, the counterpart to `pause()`. A caller that paused playback for
+    /// its own reason (see `pause()`) should call this to undo exactly that, rather than
+    /// `togglePause()` which would incorrectly resume a story the user had paused manually.
+    public func resume() {
+        guard isPaused else { return }
+        isPaused = false
+        startRun()
     }
 
     public func toggleMute() {
