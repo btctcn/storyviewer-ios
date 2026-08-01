@@ -270,6 +270,7 @@ open class StoryViewerViewController: UIViewController {
 
     private func showCurrentStory() {
         imageLoadTask?.cancel()
+        videoView?.stop()
         videoView?.removeFromSuperview()
         videoView = nil
 
@@ -288,8 +289,13 @@ open class StoryViewerViewController: UIViewController {
                 player.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 player.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             ])
-            player.onReady = { [weak self] duration in
-                guard let self, self.model.currentStory.id == story.id else { return }
+            // `[weak player]`, not just `[weak self]` — `player` is stored in `player.onReady`
+            // itself, so capturing it strongly here would retain it forever (the closure keeps
+            // the view alive, the view keeps the closure alive), leaking its AVPlayer past
+            // `showCurrentStory()` discarding `videoView` and letting the old story's audio keep
+            // playing indefinitely underneath the new one.
+            player.onReady = { [weak self, weak player] duration in
+                guard let self, let player, self.model.currentStory.id == story.id else { return }
                 player.setVolume(self.model.isMuted ? 0 : 1)
                 player.play()
                 self.model.videoReady(duration: duration)
