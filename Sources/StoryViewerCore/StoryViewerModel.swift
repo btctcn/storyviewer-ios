@@ -77,8 +77,10 @@ public final class StoryViewerModel: ObservableObject {
     public func previous() { goTo(currentIndex - 1) }
 
     private func goTo(_ index: Int) {
+        NSLog("[StoryDebug] goTo(\(index)) from currentIndex=\(currentIndex) storiesCount=\(stories.count)")
         advanceTask?.cancel()
         guard stories.indices.contains(index) else {
+            NSLog("[StoryDebug] goTo(\(index)) out of range -> finish")
             finish(clickedLink: nil)
             return
         }
@@ -110,6 +112,7 @@ public final class StoryViewerModel: ObservableObject {
 
     /// Call once the video player reports its duration and is ready to play.
     public func videoReady(duration: TimeInterval) {
+        NSLog("[StoryDebug] videoReady duration=\(duration) currentIndex=\(currentIndex) isPaused=\(isPaused) isVideo=\(currentStory.isVideo)")
         guard currentStory.isVideo else { return }
         fullDuration = max(duration, 1)
         if !isPaused {
@@ -174,8 +177,12 @@ public final class StoryViewerModel: ObservableObject {
     }
 
     private func startRun() {
-        guard !isPaused, let duration = fullDuration else { return }
+        guard !isPaused, let duration = fullDuration else {
+            NSLog("[StoryDebug] startRun bail isPaused=\(isPaused) fullDuration=\(String(describing: fullDuration))")
+            return
+        }
         let remaining = max(duration - elapsed, 0)
+        NSLog("[StoryDebug] startRun index=\(currentIndex) duration=\(duration) elapsed=\(elapsed) remaining=\(remaining)")
         runStart = Date()
         animationToken += 1
         segmentAnimation = SegmentAnimation(token: animationToken, index: currentIndex, toValue: 1, duration: remaining)
@@ -184,8 +191,13 @@ public final class StoryViewerModel: ObservableObject {
         let index = currentIndex
         advanceTask = Task { [weak self] in
             try? await Task.sleep(nanoseconds: UInt64(max(remaining, 0) * 1_000_000_000))
-            guard let self, !Task.isCancelled else { return }
-            guard self.currentIndex == index else { return }
+            guard let self else { NSLog("[StoryDebug] advanceTask fired but self is nil"); return }
+            guard !Task.isCancelled else { NSLog("[StoryDebug] advanceTask fired but cancelled index=\(index)"); return }
+            guard self.currentIndex == index else {
+                NSLog("[StoryDebug] advanceTask fired but currentIndex changed: scheduled=\(index) now=\(self.currentIndex)")
+                return
+            }
+            NSLog("[StoryDebug] advanceTask firing next() from index=\(index)")
             self.next()
         }
     }

@@ -269,6 +269,7 @@ open class StoryViewerViewController: UIViewController {
     // MARK: - Story presentation
 
     private func showCurrentStory() {
+        NSLog("[StoryDebug] showCurrentStory index=\(model.currentIndex) id=\(model.currentStory.id) isVideo=\(model.currentStory.isVideo)")
         imageLoadTask?.cancel()
         videoView?.stop()
         videoView?.removeFromSuperview()
