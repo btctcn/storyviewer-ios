@@ -227,9 +227,16 @@ open class StoryViewerViewController: UIViewController {
     // MARK: - Model binding
 
     private func bindModel() {
+        // `@Published` publishes from `willSet`, before its own backing storage is updated —
+        // re-reading `model.currentIndex`/`model.currentStory` synchronously inside this sink
+        // would see the OLD value, redisplaying the story we just left instead of the new one.
+        // Deferring one runloop turn lets the model's property (and the rest of `goTo()`, e.g.
+        // `enterCurrentStory()`) finish first.
         model.$currentIndex
             .dropFirst()
-            .sink { [weak self] _ in self?.showCurrentStory() }
+            .sink { [weak self] _ in
+                DispatchQueue.main.async { self?.showCurrentStory() }
+            }
             .store(in: &cancellables)
 
         model.$progressBaseline
