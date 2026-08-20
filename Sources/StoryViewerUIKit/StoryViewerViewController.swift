@@ -181,7 +181,6 @@ open class StoryViewerViewController: UIViewController {
             controlsRow.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
         ])
 
-        watchButton.setTitle("Watch", for: .normal)
         watchButton.setTitleColor(style.watchButtonTextColor, for: .normal)
         watchButton.titleLabel?.font = style.font
         watchButton.backgroundColor = style.watchButtonBackgroundColor
@@ -283,6 +282,7 @@ open class StoryViewerViewController: UIViewController {
 
         let story = model.currentStory
         watchButton.isHidden = story.linkURL == nil
+        watchButton.setTitle(story.linkButtonText ?? "Watch", for: .normal)
 
         if let videoURL = story.videoURL {
             imageView.isHidden = true
