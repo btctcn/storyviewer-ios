@@ -156,7 +156,7 @@ public struct StoryViewerView: View {
 
     private func watchButton(link: URL) -> some View {
         Button(action: { model.watchTapped() }) {
-            Text("Watch")
+            Text(model.currentStory.linkButtonText ?? "Watch")
                 .font(style.font)
                 .foregroundColor(style.watchButtonTextColor)
                 .frame(maxWidth: .infinity)
